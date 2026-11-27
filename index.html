@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Legend of Bolaang Satu — Interactive Flipbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --page-w: 470px;
+      --page-h: 660px;
+
+      /* Emerald Hills, Forest Moss & Warm Terracotta Gold Palette */
+      --cream: #faf6ed;
+      --cream-2: #ebe1cd;
+      --ink: #1d2b22;
+      --ink-soft: #43574a;
+      --amber: #c67d36;
+      --amber-lt: #f5d19c;
+      --emerald: #235c3d;
+      --emerald-deep: #153c27;
+      --moss-glow: #8ec9a3;
+      --book-deep: #0d2317;
+      --book-mid: #1a422c;
+      --book-edge: #07140d;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      color: #f4efe4;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(35, 92, 61, 0.36), transparent 48%),
+        radial-gradient(circle at 80% 82%, rgba(198, 125, 54, 0.24), transparent 50%),
+        radial-gradient(circle at 50% -5%, #1d4a31 0%, #0d2418 50%, #050f0a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 12px 22px;
+      min-height: 100dvh;
+      overflow-x: clip;
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(95px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 440px;
+      height: 440px;
+      top: -110px;
+      left: -90px;
+      background: radial-gradient(circle, rgba(142, 201, 163, 0.18), transparent 70%);
+      animation: floatBlob 17s ease-in-out infinite alternate;
+    }
+    body::after {
+      width: 480px;
+      height: 480px;
+      bottom: -140px;
+      right: -110px;
+      background: radial-gradient(circle, rgba(198, 125, 54, 0.22), transparent 70%);
+      animation: floatBlob 21s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes floatBlob {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(38px, 28px) scale(1.12); }
+    }
+
+    /* ============ HEADER ============ */
+    .site-head {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      line-height: 1;
+      width: 100%;
+    }
+    .site-head .eyebrow {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(198, 125, 54, 0.16);
+      border: 1px solid rgba(245, 209, 156, 0.32);
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--amber-lt);
+      margin-bottom: 8px;
+    }
+    .site-head h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #fff8eb;
+      text-shadow: 0 4px 24px rgba(142, 201, 163, 0.28);
+    }
+    .site-head .flourish {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 8px auto 0;
+      width: 180px;
+      color: var(--amber);
+      font-size: 0.65rem;
+    }
+    .site-head .flourish::before,
+    .site-head .flourish::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--moss-glow), var(--amber), transparent);
+    }
+
+    /* ============ STAGE & BOOK ============ */
+    .book-area {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 240px;
+    }
+
+    .stage-wrap {
+      position: relative;
+      transform-origin: top left;
+      transform: scale(1);
+      flex-shrink: 0;
+    }
+
+    .book {
+      position: relative;
+      width: calc(var(--page-w) * 2);
+      height: var(--page-h);
+      perspective: 2600px;
+      perspective-origin: 50% 50%;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--book-mid) 0%, var(--book-deep) 55%, var(--book-edge) 100%);
+      box-shadow:
+        0 35px 75px -20px rgba(0, 0, 0, 0.92),
+        0 0 0 1.5px rgba(198, 125, 54, 0.42),
+        0 0 0 7px rgba(7, 20, 13, 0.88),
+        inset 0 0 80px rgba(0, 0, 0, 0.65);
+      touch-action: pan-y;
+      animation: gentleFloat 6.5s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .book::before,
+    .book::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      width: 10px;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+    .book::before {
+      left: 4px;
+      border-radius: 8px 0 0 8px;
+      background: repeating-linear-gradient(90deg, #cfd6d0 0px, #f2f5f2 1.5px, #b4beb6 3px);
+    }
+    .book::after {
+      right: 4px;
+      border-radius: 0 8px 8px 0;
+      background: repeating-linear-gradient(90deg, #b4beb6 0px, #f2f5f2 1.5px, #cfd6d0 3px);
+    }
+
+    /* ============ LEAVES & PAGES ============ */
+    .leaf {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      transition: transform 0.9s cubic-bezier(0.38, 0.04, 0.2, 1);
+      will-change: transform;
+      cursor: pointer;
+    }
+    .leaf.flipped {
+      transform: rotateY(-180deg);
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 26px 32px 20px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.86), transparent 45%),
+        radial-gradient(circle at 86% 88%, rgba(35, 92, 61, 0.11), transparent 52%),
+        radial-gradient(circle at 12% 85%, rgba(198, 125, 54, 0.09), transparent 45%),
+        linear-gradient(168deg, var(--cream) 0%, var(--cream-2) 100%);
+      color: var(--ink);
+    }
+
+    .page.front {
+      border-radius: 3px 14px 14px 3px;
+      box-shadow: inset -14px 0 24px -18px rgba(20, 42, 28, 0.65);
+    }
+    .page.back {
+      transform: rotateY(180deg);
+      border-radius: 14px 3px 3px 14px;
+      box-shadow: inset 14px 0 24px -18px rgba(20, 42, 28, 0.65);
+    }
+
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .page.front::before {
+      background: linear-gradient(90deg, rgba(18, 38, 25, 0.26) 0%, rgba(18, 38, 25, 0.07) 4%, rgba(255, 255, 255, 0.25) 7%, transparent 13%);
+    }
+    .page.back::before {
+      background: linear-gradient(270deg, rgba(18, 38, 25, 0.26) 0%, rgba(18, 38, 25, 0.07) 4%, rgba(255, 255, 255, 0.25) 7%, transparent 13%);
+    }
+
+    .page::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.28;
+      background-image: radial-gradient(rgba(45, 85, 58, 0.15) 1px, transparent 0);
+      background-size: 18px 18px;
+    }
+
+    .page > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============ TYPOGRAPHY ============ */
+    .chapter {
+      display: inline-block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 5px;
+    }
+    .chapter::after {
+      content: '';
+      display: block;
+      width: 62px;
+      height: 1.5px;
+      margin-top: 5px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--emerald), var(--amber), transparent);
+    }
+
+    .page h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.38rem;
+      font-weight: 700;
+      line-height: 1.22;
+      color: #14291d;
+      margin-bottom: 10px;
+    }
+
+    .page p {
+      font-size: 0.9rem;
+      font-weight: 400;
+      line-height: 1.75;
+      color: #213428;
+      text-align: justify;
+      hyphens: auto;
+      margin-bottom: 10px;
+    }
+    .page p:last-of-type { margin-bottom: 0; }
+
+    .story-drop::first-letter {
+      float: left;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.7rem;
+      line-height: 0.82;
+      padding-top: 4px;
+      padding-right: 9px;
+      padding-bottom: 2px;
+      color: var(--emerald);
+      font-weight: 700;
+    }
+
+    .lead {
+      font-style: italic;
+      color: #264231 !important;
+      font-size: 0.94rem !important;
+      line-height: 1.76 !important;
+      border-left: 3.5px solid var(--amber);
+      padding: 8px 12px 8px 14px;
+      background: linear-gradient(90deg, rgba(198, 125, 54, 0.11), transparent);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .page-figure {
+      margin: 10px 0 0;
+      flex: 1 1 auto;
+      min-height: 130px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 12px 26px -12px rgba(15, 34, 22, 0.68), 0 0 0 2px rgba(198, 125, 54, 0.45);
+    }
+    .page-figure img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .page-figure:hover img { transform: scale(1.06); }
+
+    .page-num {
+      margin-top: auto;
+      padding-top: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem !important;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #627a6a !important;
+    }
+    .page.front .page-num { text-align: right; }
+    .page.back .page-num { text-align: left; }
+
+    .facts {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin: 12px 0 0;
+    }
+    .fact {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(35, 92, 61, 0.12), rgba(198, 125, 54, 0.08));
+      border-left: 3.5px solid var(--emerald);
+    }
+    .fact-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--emerald-deep);
+    }
+    .fact-value {
+      font-size: 0.86rem;
+      color: #1e3125;
+      line-height: 1.5;
+    }
+
+    .quote-card {
+      margin: 10px 0 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(35, 92, 61, 0.13), rgba(198, 125, 54, 0.14));
+      border: 1px solid rgba(35, 92, 61, 0.34);
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.96rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #153523;
+      line-height: 1.52;
+    }
+    .quote-card span {
+      display: block;
+      margin-top: 6px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      font-style: normal;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #9b5c22;
+    }
+
+    /* ============ COVER & BACK COVER ============ */
+    .cover {
+      padding: 22px;
+      background:
+        radial-gradient(circle at 50% 15%, rgba(142, 201, 163, 0.22), transparent 55%),
+        radial-gradient(circle at 50% 90%, rgba(198, 125, 54, 0.16), transparent 55%),
+        linear-gradient(165deg, #fcf9f2 0%, #e8dec9 100%);
+    }
+    .cover-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 16px 15px;
+      border: 2px solid rgba(35, 92, 61, 0.45);
+      border-radius: 12px;
+      outline: 1px solid rgba(198, 125, 54, 0.44);
+      outline-offset: 6px;
+      background: radial-gradient(circle at 50% 0%, rgba(35, 92, 61, 0.10), transparent 65%);
+    }
+    .cover .kicker {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--emerald);
+      margin-bottom: 8px;
+    }
+    .cover-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.56rem;
+      font-weight: 700;
+      line-height: 1.18;
+      color: #13281c;
+    }
+    .cover-sub {
+      font-size: 0.82rem !important;
+      line-height: 1.55 !important;
+      color: #3f5748 !important;
+      text-align: center !important;
+      margin-top: 8px;
+    }
+    .cover-sub strong {
+      font-family: 'Cinzel', serif;
+      color: #8f561f;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      margin: 10px 0;
+      color: var(--amber);
+      font-size: 0.76rem;
+    }
+    .ornament::before, .ornament::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(35, 92, 61, 0.55), rgba(198, 125, 54, 0.7), transparent);
+    }
+
+    .cover-figure {
+      width: 100%;
+      flex: 1 1 auto;
+      min-height: 130px;
+      margin: 4px 0 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 14px 28px -14px rgba(15, 32, 21, 0.75), 0 0 0 2px rgba(198, 125, 54, 0.5);
+    }
+    .cover-figure img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cover-meta {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8f561f;
+    }
+    .cover-meta strong {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.04rem;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      color: #13281c;
+    }
+
+    .back-cover {
+      padding: 22px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(35, 92, 61, 0.16), transparent 60%),
+        linear-gradient(170deg, #fcf9f2, #e6dcc6);
+    }
+    .back-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 6px;
+      padding: 18px;
+      border: 2px solid rgba(35, 92, 61, 0.45);
+      border-radius: 12px;
+      outline: 1px solid rgba(198, 125, 54, 0.38);
+      outline-offset: 6px;
+    }
+    .back-inner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: #13281c;
+      margin: 4px 0;
+    }
+    .back-inner .thanks {
+      font-style: italic;
+      color: #3f5748;
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .credits-box {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .credit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 9px 14px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(35, 92, 61, 0.12), rgba(198, 125, 54, 0.08));
+      border-left: 3.5px solid var(--emerald);
+      text-align: left;
+    }
+    .credit-row span {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--emerald-deep);
+      white-space: nowrap;
+    }
+    .credit-row strong {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem;
+      color: #13281c;
+      text-align: right;
+    }
+
+    .back-inner .foot-note {
+      margin-top: 14px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #9b5c22;
+      text-align: center;
+    }
+
+    /* ============ CONTROLS (DISTINCT PILL BUTTONS) & FOOTER ============ */
+    .controls {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 7px 12px;
+      border-radius: 16px;
+      background: rgba(11, 29, 19, 0.78);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(198, 125, 54, 0.36);
+      box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.7);
+    }
+
+    .nav-btn {
+      height: 38px;
+      padding: 0 15px;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 209, 156, 0.45);
+      background: linear-gradient(135deg, #276342 0%, #153b26 100%);
+      color: var(--amber-lt);
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+    }
+    .nav-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, #317a52 0%, #1b4d31 100%);
+      box-shadow: 0 6px 18px rgba(142, 201, 163, 0.28);
+    }
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 4px;
+    }
+    .dot {
+      width: 12px;
+      height: 6px;
+      border-radius: 4px;
+      border: none;
+      background: rgba(245, 209, 156, 0.24);
+      cursor: pointer;
+      transition: all 0.35s ease;
+    }
+    .dot.active {
+      width: 26px;
+      background: linear-gradient(90deg, var(--moss-glow), var(--amber));
+    }
+
+    .credit-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 4px 10px;
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      color: #b8ccb9;
+      text-align: center;
+      padding: 0 8px;
+    }
+    .credit-bar strong { color: var(--amber-lt); font-weight: 600; }
+    .credit-bar .sep { color: rgba(198, 125, 54, 0.55); }
+
+    @media (max-width: 640px) {
+      .site-head h1 { font-size: 1.16rem; }
+      .site-head .eyebrow { font-size: 0.55rem; letter-spacing: 0.22em; }
+      .credit-bar { font-size: 0.68rem; }
+      .controls { gap: 10px; padding: 6px 9px; }
+      .nav-btn { height: 34px; padding: 0 11px; font-size: 0.64rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .leaf { transition-duration: 0.01ms; }
+      .book, body::before, body::after { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-head">
+    <p class="eyebrow">English Assignment · North Sulawesi Folklore</p>
+    <h1>The Legend of Bolaang Satu</h1>
+    <div class="flourish"><span>❖</span></div>
+  </header>
+
+  <main class="book-area" id="bookArea">
+    <div class="stage-wrap" id="stageWrap">
+      <div class="book" id="book">
+
+        <!-- LEAF 1: COVER + PAGE 2 -->
+        <div class="leaf">
+          <section class="page front cover">
+            <div class="cover-inner">
+              <p class="kicker">Folklore from Bolaang Satu, North Sulawesi</p>
+              <h2 class="cover-title">THE LEGEND OF<br />BOLAANG SATU</h2>
+              <p class="cover-sub">
+                A Story of Kindness, Nature &amp; Unity<br />
+                <strong>Green Hills · Forests · Rivers</strong>
+              </p>
+              <div class="ornament"><span>❖</span></div>
+              <figure class="cover-figure">
+                <img src="https://raw.githubusercontent.com/fengbotbotfeng-byte/urlgambar5/main/IMG-20261127-WA0386.jpg" alt="Green hills, forests, and rivers surrounding Bolaang Satu" />
+              </figure>
+              <div class="cover-meta">
+                <span>Created by</span>
+                <strong>Wahyu Abjul</strong>
+                <span>Class XI-D</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="page back">
+            <span class="chapter">Chapter I</span>
+            <h2>The Peaceful Village of Bolaang Satu</h2>
+            <p class="story-drop">
+              Long ago, there was a beautiful village called Bolaang Satu in North Sulawesi. The village was surrounded by green hills, forests, and beautiful rivers. The people lived peacefully and helped one another.
+            </p>
+            <div class="facts">
+              <div class="fact">
+                <span class="fact-label">Setting &amp; Scenery</span>
+                <span class="fact-value">Bolaang Satu in North Sulawesi, surrounded by green hills, forests, and beautiful rivers</span>
+              </div>
+              <div class="fact">
+                <span class="fact-label">Community Life</span>
+                <span class="fact-value">The villagers lived peacefully and always helped one another</span>
+              </div>
+            </div>
+            <p class="page-num">2</p>
+          </section>
+        </div>
+
+        <!-- LEAF 2: PAGE 3 + PAGE 4 -->
+        <div class="leaf">
+          <section class="page front">
+            <span class="chapter">Chapter II</span>
+            <h2>Datu &amp; The Voice in the Forest</h2>
+            <p class="story-drop">
+              One day, a young man named Datu went into the forest to find food. Suddenly, he heard someone calling for help. He followed the voice and found an old man who was lost.
+            </p>
+            <figure class="page-figure">
+              <img src="https://raw.githubusercontent.com/fengbotbotfeng-byte/urlgambar5/main/IMG-20261127-WA0385.jpg" alt="Datu entering the green forest of Bolaang Satu" />
+            </figure>
+            <p class="page-num">3</p>
+          </section>
+
+          <section class="page back">
+            <span class="chapter">Chapter III</span>
+            <h2>The Old Man's Reward</h2>
+            <p class="story-drop">
+              Datu helped the old man return to the village. As a reward, the old man gave him a special message:
+            </p>
+            <div class="quote-card">
+              &ldquo;Always respect your land, protect nature, and help other people.&rdquo;
+              <span>Special Message from the Old Man</span>
+            </div>
+            <p>
+              Datu shared the message with the villagers. From that day on, the people of Bolaang Satu always worked together, respected their traditions, and protected their village.
+            </p>
+            <p class="page-num">4</p>
+          </section>
+        </div>
+
+        <!-- LEAF 3: PAGE 5 + BACK COVER -->
+        <div class="leaf">
+          <section class="page front">
+            <span class="chapter">Closing &amp; Moral Value</span>
+            <h2>Kindness, Tradition &amp; Unity</h2>
+            <p class="story-drop">
+              Finally, Bolaang Satu became a peaceful village known for its kindness and unity.
+            </p>
+            <p class="lead">
+              <strong>Moral Value:</strong><br />
+              We must help others, respect traditions, protect nature, and maintain unity.
+            </p>
+            <figure class="page-figure">
+              <img src="https://raw.githubusercontent.com/fengbotbotfeng-byte/urlgambar5/main/IMG-20261127-WA0384.jpg" alt="Peaceful village unity and protected nature in Bolaang Satu" />
+            </figure>
+            <p class="page-num">5</p>
+          </section>
+
+          <section class="page back back-cover">
+            <div class="back-inner">
+              <div class="ornament"><span>❖</span></div>
+              <h2>The End</h2>
+              <p class="thanks">Thank you for reading</p>
+              <div class="ornament"><span>❖</span></div>
+              <div class="credits-box">
+                <div class="credit-row">
+                  <span>Created by</span>
+                  <strong>Wahyu Abjul</strong>
+                </div>
+                <div class="credit-row">
+                  <span>Class</span>
+                  <strong>XI-D</strong>
+                </div>
+                <div class="credit-row">
+                  <span>Subject</span>
+                  <strong>English (Bahasa Inggris)</strong>
+                </div>
+                <div class="credit-row">
+                  <span>Teacher</span>
+                  <strong>Diawaty Udang</strong>
+                </div>
+              </div>
+              <p class="foot-note">Bolaang Satu · North Sulawesi</p>
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <nav class="controls" aria-label="Flipbook navigation">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous page">
+      <span>‹ Prev</span>
+    </button>
+    <div class="dots" id="dots" role="tablist" aria-label="Page indicators"></div>
+    <button class="nav-btn" id="nextBtn" aria-label="Next page">
+      <span>Next ›</span>
+    </button>
+  </nav>
+
+  <footer class="credit-bar">
+    <span>Created by <strong>Wahyu Abjul</strong></span>
+    <span class="sep">❖</span>
+    <span>Class <strong>XI-D</strong></span>
+    <span class="sep">❖</span>
+    <span>Subject: <strong>English</strong></span>
+    <span class="sep">❖</span>
+    <span>Teacher: <strong>Diawaty Udang</strong></span>
+  </footer>
+
+  <script>
+    (function () {
+      const BOOK_W = 940;
+      const BOOK_H = 660;
+
+      const bookArea = document.getElementById('bookArea');
+      const stageWrap = document.getElementById('stageWrap');
+      const book = document.getElementById('book');
+      const leaves = Array.from(document.querySelectorAll('.leaf'));
+      const dotsWrap = document.getElementById('dots');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      const TOTAL = leaves.length;
+      const STATES = TOTAL + 1;
+      const FLIP_MS = 900;
+
+      let current = 0;
+      let animating = false;
+
+      let audioCtx = null;
+      function ensureAudio() {
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          audioCtx = new AC();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+
+      function playFlipSound(direction) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const dur = 0.22;
+        const sampleRate = ctx.sampleRate;
+        const buffer = ctx.createBuffer(1, Math.floor(sampleRate * dur), sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) {
+          const t = i / data.length;
+          const env = Math.pow(1 - t, 2.5);
+          const ripple = 0.55 + 0.45 * Math.sin(t * Math.PI * 9);
+          data[i] = (Math.random() * 2 - 1) * env * ripple;
+        }
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.Q.value = 1.1;
+        filter.frequency.setValueAtTime(direction > 0 ? 650 : 1300, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(direction > 0 ? 1900 : 380, ctx.currentTime + dur);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        src.start();
+      }
+
+      function fitBook() {
+        const rect = bookArea.getBoundingClientRect();
+        const availW = Math.max(240, rect.width - 18);
+        const availH = Math.max(180, rect.height - 16);
+        const s = Math.min(1, availW / BOOK_W, availH / BOOK_H);
+        stageWrap.style.width = Math.round(BOOK_W * s) + 'px';
+        stageWrap.style.height = Math.round(BOOK_H * s) + 'px';
+        stageWrap.style.transform = 'scale(' + s + ')';
+      }
+
+      function applyZ() {
+        leaves.forEach(function (leaf, i) {
+          leaf.style.zIndex = i < current ? String(i + 1) : String(TOTAL - i + 10);
+        });
+      }
+
+      for (let i = 0; i < STATES; i++) {
+        const d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'dot';
+        d.setAttribute('aria-label', 'Go to spread ' + (i + 1));
+        d.addEventListener('click', function () { goToState(i); });
+        dotsWrap.appendChild(d);
+      }
+      const dots = Array.from(dotsWrap.children);
+
+      function updateUI() {
+        dots.forEach(function (d, i) { d.classList.toggle('active', i === current); });
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === TOTAL;
+      }
+
+      function goToState(target) {
+        if (animating || target === current) return;
+        animating = true;
+        playFlipSound(target > current ? 1 : -1);
+        leaves.forEach(function (leaf, i) {
+          leaf.style.zIndex = String(100 + Math.abs(current - i));
+          if (i < target) leaf.classList.add('flipped');
+          else leaf.classList.remove('flipped');
+        });
+        current = target;
+        updateUI();
+        window.setTimeout(function () { applyZ(); animating = false; }, FLIP_MS);
+      }
+
+      function flip(direction) {
+        if (animating) return;
+        if (direction > 0 && current >= TOTAL) return;
+        if (direction < 0 && current <= 0) return;
+        animating = true;
+        playFlipSound(direction);
+        const index = direction > 0 ? current : current - 1;
+        const leaf = leaves[index];
+        leaf.style.zIndex = '999';
+        if (direction > 0) { leaf.classList.add('flipped'); current++; }
+        else { leaf.classList.remove('flipped'); current--; }
+        updateUI();
+        window.setTimeout(function () { applyZ(); updateUI(); animating = false; }, FLIP_MS);
+      }
+
+      prevBtn.addEventListener('click', function () { flip(-1); });
+      nextBtn.addEventListener('click', function () { flip(1); });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); flip(1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); flip(-1); }
+      });
+
+      book.addEventListener('click', function (e) {
+        const rect = book.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        flip(x < rect.width / 2 ? -1 : 1);
+      });
+
+      let touchStartX = null;
+      book.addEventListener('touchstart', function (e) {
+        touchStartX = e.changedTouches[0].clientX;
+      }, { passive: true });
+
+      book.addEventListener('touchend', function (e) {
+        if (touchStartX === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 36) flip(dx < 0 ? 1 : -1);
+        touchStartX = null;
+      }, { passive: true });
+
+      window.addEventListener('resize', fitBook);
+      window.addEventListener('orientationchange', function () { window.setTimeout(fitBook, 180); });
+
+      fitBook();
+      applyZ();
+      updateUI();
+      requestAnimationFrame(fitBook);
+    })();
+  </script>
+</body>
+</html>
